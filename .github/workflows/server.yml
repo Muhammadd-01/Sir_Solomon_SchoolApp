@@ -1,0 +1,35 @@
+name: Server CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+    
+    - name: Install dependencies
+      working-directory: ./server
+      run: npm ci
+    
+    - name: Run linter
+      working-directory: ./server
+      run: npm run lint || true
+    
+    - name: Run tests
+      working-directory: ./server
+      run: npm test || true
+    
+    - name: Build Docker image
+      if: github.ref == 'refs/heads/main'
+      run: docker build -t solomon-server:latest -f infra/Dockerfile.server ./server

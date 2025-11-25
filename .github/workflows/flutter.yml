@@ -1,0 +1,44 @@
+name: Flutter CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.16.0'
+        channel: 'stable'
+    
+    - name: Install dependencies
+      working-directory: ./mobile
+      run: flutter pub get
+    
+    - name: Analyze code
+      working-directory: ./mobile
+      run: flutter analyze
+    
+    - name: Run tests
+      working-directory: ./mobile
+      run: flutter test
+    
+    - name: Build APK
+      if: github.ref == 'refs/heads/main'
+      working-directory: ./mobile
+      run: flutter build apk --release
+    
+    - name: Upload APK
+      if: github.ref == 'refs/heads/main'
+      uses: actions/upload-artifact@v3
+      with:
+        name: app-release
+        path: mobile/build/app/outputs/flutter-apk/app-release.apk
