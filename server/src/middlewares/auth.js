@@ -1,69 +1,56 @@
-const { admin } = require('../config/firebase');
+const { auth, db } = require('../config/firebase');
 
 /**
- * Middleware to verify Firebase ID token
- * Attaches decoded user data to req.firebaseUser
+ * Verify Firebase ID Token
  */
-const firebaseAuthMiddleware = async (req, res, next) => {
+exports.verifyToken = async (req, res, next) => {
     try {
-        // Extract token from Authorization header
         const authHeader = req.headers.authorization;
-
         if (!authHeader || !authHeader.startsWith('Bearer ')) {
-            return res.status(401).json({
-                error: 'Unauthorized',
-                message: 'No token provided'
-            });
+            return res.status(401).json({ error: 'Unauthorized: No token provided' });
         }
 
-        const idToken = authHeader.split('Bearer ')[1];
+        const token = authHeader.split('Bearer ')[1];
+        const decodedToken = await auth.verifyIdToken(token);
 
-        // Verify the Firebase ID token
-        const decodedToken = await admin.auth().verifyIdToken(idToken);
-
-        // Attach user data to request
-        req.firebaseUser = {
-            uid: decodedToken.uid,
-            email: decodedToken.email,
-            name: decodedToken.name,
-            role: decodedToken.role || null, // Custom claim
-            emailVerified: decodedToken.email_verified
-        };
-
+        req.user = decodedToken;
         next();
     } catch (error) {
-        console.error('Firebase token verification error:', error.message);
-        return res.status(401).json({
-            error: 'Unauthorized',
-            message: 'Invalid or expired token'
-        });
+        console.error('Token verification error:', error);
+        return res.status(401).json({ error: 'Unauthorized: Invalid token' });
     }
 };
 
 /**
- * Middleware to require specific role(s)
- * Must be used after firebaseAuthMiddleware
+ * Require specific role(s)
+ * Checks the 'role' field in the 'users' Firestore collection
  */
-const requireRole = (...allowedRoles) => {
-    return (req, res, next) => {
-        if (!req.firebaseUser) {
-            return res.status(401).json({
-                error: 'Unauthorized',
-                message: 'Authentication required'
-            });
+exports.requireRole = (allowedRoles) => {
+    return async (req, res, next) => {
+        try {
+            if (!req.user) {
+                return res.status(401).json({ error: 'Unauthorized: User not authenticated' });
+            }
+
+            const userDoc = await db.collection('users').doc(req.user.uid).get();
+
+            if (!userDoc.exists) {
+                return res.status(403).json({ error: 'Forbidden: User profile not found' });
+            }
+
+            const userData = userDoc.data();
+            const userRole = userData.role;
+
+            if (!allowedRoles.includes(userRole)) {
+                return res.status(403).json({ error: 'Forbidden: Insufficient permissions' });
+            }
+
+            // Attach full user profile to request for convenience
+            req.userProfile = userData;
+            next();
+        } catch (error) {
+            console.error('Role verification error:', error);
+            return res.status(500).json({ error: 'Internal Server Error' });
         }
-
-        const userRole = req.firebaseUser.role;
-
-        if (!userRole || !allowedRoles.includes(userRole)) {
-            return res.status(403).json({
-                error: 'Forbidden',
-                message: 'Insufficient permissions'
-            });
-        }
-
-        next();
     };
 };
-
-module.exports = { firebaseAuthMiddleware, requireRole };

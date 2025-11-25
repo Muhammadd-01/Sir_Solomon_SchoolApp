@@ -1,121 +1,107 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../config/firebase';
+import { Button } from '../components/ui/button';
+import { Input } from '../components/ui/input';
+import { Label } from '../components/ui/label';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
+import { Alert, AlertDescription } from '../components/ui/alert';
 
-const Login = () => {
+export default function Login() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
-    const handleSubmit = async (e) => {
+    const handleLogin = async (e) => {
         e.preventDefault();
-        setLoading(true);
         setError('');
+        setLoading(true);
 
         try {
-            await signInWithEmailAndPassword(auth, email, password);
+            const userCredential = await signInWithEmailAndPassword(auth, email, password);
+            const user = userCredential.user;
+
+            // Get ID token
+            const token = await user.getIdToken();
+            localStorage.setItem('authToken', token);
+
+            // Redirect to dashboard
             navigate('/dashboard');
-        } catch (error) {
-            console.error('Login error:', error);
-            setError(error.message || 'Login failed. Please check your credentials.');
+        } catch (err) {
+            console.error('Login error:', err);
+            setError(err.message || 'Failed to login. Please check your credentials.');
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-navy via-navy-light to-accent flex items-center justify-center p-4">
-            {/* Background Pattern */}
-            <div className="absolute inset-0 opacity-10">
-                <div className="absolute top-0 left-0 w-96 h-96 bg-primary rounded-full filter blur-3xl"></div>
-                <div className="absolute bottom-0 right-0 w-96 h-96 bg-accent rounded-full filter blur-3xl"></div>
-            </div>
-
-            {/* Login Card */}
-            <div className="relative w-full max-w-md">
-                <div className="glass rounded-2xl shadow-2xl p-8 space-y-6">
-                    {/* Logo & Title */}
-                    <div className="text-center space-y-2">
-                        <div className="w-20 h-20 bg-gradient-to-br from-primary to-accent rounded-2xl mx-auto flex items-center justify-center shadow-lg">
-                            <span className="text-3xl font-bold text-navy">S</span>
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 p-4">
+            <Card className="w-full max-w-md shadow-2xl">
+                <CardHeader className="space-y-1 text-center">
+                    <div className="flex justify-center mb-4">
+                        <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center">
+                            <svg
+                                className="w-10 h-10 text-primary-foreground"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+                                />
+                            </svg>
                         </div>
-                        <h1 className="text-3xl font-bold gradient-text">Solomon's School</h1>
-                        <p className="text-gray-600">Admin Panel</p>
                     </div>
-
-                    {/* Login Form */}
-                    <form onSubmit={handleSubmit} className="space-y-4">
+                    <CardTitle className="text-3xl font-bold">Solomon's School</CardTitle>
+                    <CardDescription className="text-base">Admin Panel Login</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <form onSubmit={handleLogin} className="space-y-4">
                         {error && (
-                            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm fade-in">
-                                {error}
-                            </div>
+                            <Alert variant="destructive">
+                                <AlertDescription>{error}</AlertDescription>
+                            </Alert>
                         )}
 
-                        <div>
-                            <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                Email Address
-                            </label>
-                            <input
+                        <div className="space-y-2">
+                            <Label htmlFor="email">Email</Label>
+                            <Input
+                                id="email"
                                 type="email"
+                                placeholder="admin@school.com"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                className="input-field"
-                                placeholder="admin@solomon.school"
                                 required
                                 disabled={loading}
                             />
                         </div>
 
-                        <div>
-                            <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                Password
-                            </label>
-                            <input
+                        <div className="space-y-2">
+                            <Label htmlFor="password">Password</Label>
+                            <Input
+                                id="password"
                                 type="password"
+                                placeholder="••••••••"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                className="input-field"
-                                placeholder="••••••••"
                                 required
                                 disabled={loading}
                             />
                         </div>
 
-                        <button
-                            type="submit"
-                            disabled={loading}
-                            className="w-full bg-gradient-to-r from-accent to-accent-dark hover:from-accent-dark hover:to-accent text-white py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            {loading ? (
-                                <span className="flex items-center justify-center">
-                                    <span className="spinner mr-2"></span>
-                                    Signing in...
-                                </span>
-                            ) : (
-                                'Sign In'
-                            )}
-                        </button>
+                        <Button type="submit" className="w-full" disabled={loading}>
+                            {loading ? 'Signing in...' : 'Sign In'}
+                        </Button>
                     </form>
-
-                    {/* Default Credentials Info */}
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm">
-                        <p className="font-semibold text-blue-900 mb-2">Default Credentials:</p>
-                        <p className="text-blue-700">Email: admin@solomon.school</p>
-                        <p className="text-blue-700">Password: Admin@123456</p>
-                        <p className="text-blue-600 text-xs mt-2">⚠️ Change password after first login</p>
-                    </div>
-                </div>
-
-                {/* Footer */}
-                <p className="text-center text-white/80 text-sm mt-6">
-                    © 2024 Solomon's Secondary School. All rights reserved.
-                </p>
-            </div>
+                </CardContent>
+            </Card>
         </div>
     );
-};
-
-export default Login;
+}

@@ -19,6 +19,7 @@ export default {
                     DEFAULT: '#081F5C',
                     light: '#0A2570',
                 },
+                border: 'hsl(var(--border))',  // ✅ add this
             },
         },
     },

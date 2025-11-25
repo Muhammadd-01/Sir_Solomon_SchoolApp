@@ -1,70 +1,57 @@
-const { admin } = require('../config/firebase');
-const User = require('../models/User');
+const { auth, db } = require('../config/firebase');
 
 /**
- * Verify Firebase ID token and return user data
+ * Initialize Super Admin Account
+ * Checks if a user with SUPER_ADMIN_EMAIL exists.
+ * If not, creates it and assigns 'super-admin' role in Firestore.
  */
-exports.verifyFirebaseToken = async (req, res) => {
+exports.initSuperAdmin = async () => {
+    const email = process.env.SUPER_ADMIN_EMAIL || 'superadmin@school.com';
+    const password = process.env.SUPER_ADMIN_PASSWORD || 'SuperAdmin123!';
+
     try {
-        const { idToken } = req.body;
+        // Check if user exists
+        try {
+            await auth.getUserByEmail(email);
+            console.log('Super Admin account already exists.');
+        } catch (error) {
+            if (error.code === 'auth/user-not-found') {
+                console.log('Creating Super Admin account...');
+                // Create user
+                const userRecord = await auth.createUser({
+                    email: email,
+                    password: password,
+                    displayName: 'Super Admin',
+                });
 
-        if (!idToken) {
-            return res.status(400).json({ error: 'Bad request', message: 'ID token required' });
-        }
+                // Set role in Firestore
+                await db.collection('users').doc(userRecord.uid).set({
+                    email: email,
+                    role: 'super-admin',
+                    displayName: 'Super Admin',
+                    createdAt: new Date().toISOString(),
+                    createdBy: 'system'
+                });
 
-        // Verify token with Firebase
-        const decodedToken = await admin.auth().verifyIdToken(idToken);
-
-        // Check if user exists in our database
-        let user = await User.findOne({ firebaseUid: decodedToken.uid });
-
-        // If user doesn't exist and has appropriate role claim, create them
-        if (!user && decodedToken.role) {
-            user = new User({
-                email: decodedToken.email,
-                name: {
-                    first: decodedToken.name?.split(' ')[0] || 'User',
-                    last: decodedToken.name?.split(' ').slice(1).join(' ') || ''
-                },
-                role: decodedToken.role,
-                firebaseUid: decodedToken.uid
-            });
-            await user.save();
-        }
-
-        res.json({
-            success: true,
-            message: 'Token verified successfully',
-            user: {
-                uid: decodedToken.uid,
-                email: decodedToken.email,
-                role: decodedToken.role || user?.role,
-                name: decodedToken.name,
-                emailVerified: decodedToken.email_verified
+                console.log(`Super Admin created successfully: ${email}`);
+            } else {
+                throw error;
             }
-        });
+        }
     } catch (error) {
-        console.error('Token verification error:', error);
-        res.status(401).json({ error: 'Unauthorized', message: 'Invalid token' });
+        console.error('Error initializing Super Admin:', error);
     }
 };
 
 /**
- * Admin login (optional - for local admin accounts)
+ * Login Proxy (Optional)
+ * In this architecture, frontend logs in directly to Firebase.
+ * This endpoint can be used to verify tokens or exchange custom tokens if needed.
  */
-exports.adminLogin = async (req, res) => {
-    try {
-        const { email, password } = req.body;
-
-        // TODO: Implement bcrypt password verification
-        // This is a placeholder for local admin login
-
-        res.status(501).json({
-            error: 'Not implemented',
-            message: 'Use Firebase authentication instead'
-        });
-    } catch (error) {
-        console.error('Admin login error:', error);
-        res.status(500).json({ error: 'Server error', message: error.message });
-    }
+exports.verifyToken = async (req, res) => {
+    // Middleware already verified the token and attached user to req.user
+    res.status(200).json({
+        message: 'Token is valid',
+        user: req.user
+    });
 };
