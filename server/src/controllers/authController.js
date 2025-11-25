@@ -6,8 +6,8 @@ const { auth, db } = require('../config/firebase');
  * If not, creates it and assigns 'super-admin' role in Firestore.
  */
 exports.initSuperAdmin = async () => {
-    const email = process.env.SUPER_ADMIN_EMAIL || 'superadmin@school.com';
-    const password = process.env.SUPER_ADMIN_PASSWORD || 'SuperAdmin123!';
+    const email = 'admin@solomon.school';
+    const password = 'Admin1234';
 
     try {
         // Check if user exists
@@ -27,7 +27,7 @@ exports.initSuperAdmin = async () => {
                 // Set role in Firestore
                 await db.collection('users').doc(userRecord.uid).set({
                     email: email,
-                    role: 'super-admin',
+                    role: 'superadmin',
                     displayName: 'Super Admin',
                     createdAt: new Date().toISOString(),
                     createdBy: 'system'
@@ -42,6 +42,8 @@ exports.initSuperAdmin = async () => {
         console.error('Error initializing Super Admin:', error);
     }
 };
+
+
 
 /**
  * Login Proxy (Optional)

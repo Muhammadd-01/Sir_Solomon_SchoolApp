@@ -12,4 +12,7 @@ router.post('/teacher', verifyToken, requireRole(['super-admin']), userControlle
 // Create Student (Admin or Super Admin)
 router.post('/student', verifyToken, requireRole(['super-admin', 'admin']), userController.createStudent);
 
+// Update User Role (Super Admin only)
+router.put('/:uid/role', verifyToken, requireRole(['superadmin']), userController.updateUserRole);
+
 module.exports = router;

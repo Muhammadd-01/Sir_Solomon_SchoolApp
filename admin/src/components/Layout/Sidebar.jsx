@@ -21,6 +21,7 @@ const Sidebar = () => {
         { icon: '📢', label: 'Announcements', path: '/announcements', roles: ['admin', 'superadmin', 'teacher'] },
         { icon: '💰', label: 'Fees', path: '/fees', roles: ['admin', 'superadmin', 'accountant'] },
         { icon: '📊', label: 'Reports', path: '/reports', roles: ['admin', 'superadmin', 'accountant'] },
+        { icon: '👥', label: 'Users', path: '/users', roles: ['superadmin'] },
     ];
 
     const filteredMenuItems = menuItems.filter(item =>

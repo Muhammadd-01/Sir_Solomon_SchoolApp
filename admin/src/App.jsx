@@ -3,6 +3,7 @@ import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import ManageAdmins from './pages/ManageAdmins';
 import ManageTeachers from './pages/ManageTeachers';
+import Users from './pages/Users';
 import './index.css';
 
 function App() {
@@ -11,6 +12,7 @@ function App() {
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/users" element={<Users />} />
         <Route path="/manage-admins" element={<ManageAdmins />} />
         <Route path="/manage-teachers" element={<ManageTeachers />} />
         <Route path="/" element={<Navigate to="/dashboard" replace />} />

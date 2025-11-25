@@ -4,11 +4,11 @@ const path = require('path');
 // Initialize Firebase Admin SDK
 // In production, use environment variables or a secure secret manager
 // For development, we use the service account file
-const serviceAccountPath = process.env.FIREBASE_SERVICE_ACCOUNT_PATH || './serviceAccountKey.json';
+const serviceAccountPath = process.env.FIREBASE_SERVICE_ACCOUNT_PATH || path.join(__dirname, 'serviceAccountKey.json');
 
 try {
     admin.initializeApp({
-        credential: admin.credential.cert(require(path.resolve(serviceAccountPath))),
+        credential: admin.credential.cert(require(serviceAccountPath)),
         storageBucket: process.env.FIREBASE_STORAGE_BUCKET
     });
     console.log('Firebase Admin SDK initialized successfully');

@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../config/firebase';
+import { doc, getDoc } from 'firebase/firestore';
+import { auth, db } from '../config/firebase';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
@@ -24,9 +25,25 @@ export default function Login() {
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
 
+            // Check user role in Firestore
+            const userDoc = await getDoc(doc(db, 'users', user.uid));
+
+            if (!userDoc.exists()) {
+                throw new Error('User profile not found.');
+            }
+
+            const userData = userDoc.data();
+            const allowedRoles = ['superadmin', 'admin', 'teacher'];
+
+            if (!allowedRoles.includes(userData.role)) {
+                await auth.signOut();
+                throw new Error('Access denied. Only administrators and teachers can access this panel.');
+            }
+
             // Get ID token
             const token = await user.getIdToken();
             localStorage.setItem('authToken', token);
+            localStorage.setItem('userRole', userData.role); // Optional: store role for client-side use
 
             // Redirect to dashboard
             navigate('/dashboard');
