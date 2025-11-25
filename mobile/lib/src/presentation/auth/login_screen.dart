@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/services/auth_service.dart';
+import '../../core/utils/ui_utils.dart';
+import 'register_screen.dart';
+import 'phone_login_screen.dart';
+import 'forgot_password_screen.dart';
+import '../teacher/teacher_dashboard_screen.dart'; // Temporary: Direct to teacher dashboard for now
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -36,16 +41,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       );
 
       if (mounted) {
-        // TODO: Navigate to role selection or dashboard
-        ScaffoldMessenger.of(
+        UiUtils.showSnackBar(context, 'Login successful!');
+        // TODO: Implement role-based redirection
+        Navigator.pushReplacement(
           context,
-        ).showSnackBar(const SnackBar(content: Text('Login successful!')));
+          MaterialPageRoute(
+              builder: (context) => const TeacherDashboardScreen()),
+        );
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString()), backgroundColor: Colors.red),
-        );
+        UiUtils.showSnackBar(context, e.toString(), isError: true);
       }
     } finally {
       if (mounted) {
@@ -100,6 +106,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     decoration: const InputDecoration(
                       labelText: 'Email',
                       prefixIcon: Icon(Icons.email_outlined),
+                      border: OutlineInputBorder(),
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -120,6 +127,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     decoration: InputDecoration(
                       labelText: 'Password',
                       prefixIcon: const Icon(Icons.lock_outlined),
+                      border: const OutlineInputBorder(),
                       suffixIcon: IconButton(
                         icon: Icon(
                           _obscurePassword
@@ -146,6 +154,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   // Login button
                   ElevatedButton(
                     onPressed: _isLoading ? null : _handleLogin,
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                    ),
                     child: _isLoading
                         ? const SizedBox(
                             height: 20,
@@ -159,7 +170,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   // Forgot password
                   TextButton(
                     onPressed: () {
-                      // TODO: Navigate to forgot password screen
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const ForgotPasswordScreen(),
+                        ),
+                      );
                     },
                     child: const Text('Forgot Password?'),
                   ),
@@ -186,8 +202,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   // Phone login button
                   OutlinedButton.icon(
                     onPressed: () {
-                      // TODO: Navigate to phone login screen
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const PhoneLoginScreen(),
+                        ),
+                      );
                     },
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                    ),
                     icon: const Icon(Icons.phone_outlined),
                     label: const Text('Sign in with Phone'),
                   ),
@@ -196,8 +220,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   // Sign up button
                   OutlinedButton(
                     onPressed: () {
-                      // TODO: Navigate to sign up screen
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const RegisterScreen(),
+                        ),
+                      );
                     },
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                    ),
                     child: const Text('Create New Account'),
                   ),
                 ],

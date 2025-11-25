@@ -8,8 +8,15 @@ import 'src/presentation/auth/login_screen.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize Firebase
-  await FirebaseConfig.initialize();
+  try {
+    print('Starting Firebase initialization...');
+    // Initialize Firebase
+    await FirebaseConfig.initialize();
+    print('Firebase initialized successfully');
+  } catch (e, stackTrace) {
+    print('Error initializing Firebase: $e');
+    print(stackTrace);
+  }
 
   runApp(const ProviderScope(child: MyApp()));
 }

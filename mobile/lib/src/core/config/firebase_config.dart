@@ -48,6 +48,12 @@ class FirebaseConfig {
   }
 
   static Future<void> initialize() async {
-    await Firebase.initializeApp(options: currentPlatform);
+    if (kIsWeb) {
+      await Firebase.initializeApp(options: web);
+    } else {
+      // For Android and iOS, we rely on google-services.json and GoogleService-Info.plist
+      // This avoids using the placeholder values defined above
+      await Firebase.initializeApp();
+    }
   }
 }

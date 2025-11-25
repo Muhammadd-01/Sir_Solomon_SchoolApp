@@ -135,21 +135,21 @@ class TeacherDashboardScreen extends ConsumerWidget {
             style: Theme.of(context).textTheme.titleLarge,
           ),
           const SizedBox(height: 12),
-          _ClassCard(
+          const _ClassCard(
             className: 'Grade 10-A',
             subject: 'Mathematics',
             time: '09:00 - 09:40',
             room: 'Room 101',
             attendanceTaken: true,
           ),
-          _ClassCard(
+          const _ClassCard(
             className: 'Grade 10-B',
             subject: 'Mathematics',
             time: '09:45 - 10:25',
             room: 'Room 101',
             attendanceTaken: false,
           ),
-          _ClassCard(
+          const _ClassCard(
             className: 'Grade 9-A',
             subject: 'Mathematics',
             time: '11:00 - 11:40',
@@ -161,12 +161,12 @@ class TeacherDashboardScreen extends ConsumerWidget {
           // Pending Tasks
           Text('Pending Tasks', style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 12),
-          _TaskCard(
+          const _TaskCard(
             title: 'Grade Assignment: Algebra Quiz',
             subtitle: '25 submissions pending',
             icon: Icons.grade,
           ),
-          _TaskCard(
+          const _TaskCard(
             title: 'Review Leave Requests',
             subtitle: '3 requests pending',
             icon: Icons.approval,

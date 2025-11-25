@@ -1,83 +1,117 @@
 import React, { useState } from 'react';
-import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../config/firebase';
 
 const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
-    const { login } = useAuth();
+    const [error, setError] = useState('');
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setError('');
         setLoading(true);
+        setError('');
 
         try {
-            await login(email, password);
+            await signInWithEmailAndPassword(auth, email, password);
             navigate('/dashboard');
-        } catch (err) {
-            setError(err.message || 'Failed to login');
+        } catch (error) {
+            console.error('Login error:', error);
+            setError(error.message || 'Login failed. Please check your credentials.');
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-navy to-navy-light flex items-center justify-center p-4">
-            <div className="bg-white rounded-lg shadow-xl p-8 w-full max-w-md">
-                <div className="text-center mb-8">
-                    <img src="/logo.jpg" alt="Logo" className="h-20 mx-auto mb-4" />
-                    <h1 className="text-2xl font-bold text-gray-900">Solomon's School</h1>
-                    <p className="text-gray-600">Admin Panel</p>
+        <div className="min-h-screen bg-gradient-to-br from-navy via-navy-light to-accent flex items-center justify-center p-4">
+            {/* Background Pattern */}
+            <div className="absolute inset-0 opacity-10">
+                <div className="absolute top-0 left-0 w-96 h-96 bg-primary rounded-full filter blur-3xl"></div>
+                <div className="absolute bottom-0 right-0 w-96 h-96 bg-accent rounded-full filter blur-3xl"></div>
+            </div>
+
+            {/* Login Card */}
+            <div className="relative w-full max-w-md">
+                <div className="glass rounded-2xl shadow-2xl p-8 space-y-6">
+                    {/* Logo & Title */}
+                    <div className="text-center space-y-2">
+                        <div className="w-20 h-20 bg-gradient-to-br from-primary to-accent rounded-2xl mx-auto flex items-center justify-center shadow-lg">
+                            <span className="text-3xl font-bold text-navy">S</span>
+                        </div>
+                        <h1 className="text-3xl font-bold gradient-text">Solomon's School</h1>
+                        <p className="text-gray-600">Admin Panel</p>
+                    </div>
+
+                    {/* Login Form */}
+                    <form onSubmit={handleSubmit} className="space-y-4">
+                        {error && (
+                            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm fade-in">
+                                {error}
+                            </div>
+                        )}
+
+                        <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                Email Address
+                            </label>
+                            <input
+                                type="email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                className="input-field"
+                                placeholder="admin@solomon.school"
+                                required
+                                disabled={loading}
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                Password
+                            </label>
+                            <input
+                                type="password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                className="input-field"
+                                placeholder="••••••••"
+                                required
+                                disabled={loading}
+                            />
+                        </div>
+
+                        <button
+                            type="submit"
+                            disabled={loading}
+                            className="w-full bg-gradient-to-r from-accent to-accent-dark hover:from-accent-dark hover:to-accent text-white py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            {loading ? (
+                                <span className="flex items-center justify-center">
+                                    <span className="spinner mr-2"></span>
+                                    Signing in...
+                                </span>
+                            ) : (
+                                'Sign In'
+                            )}
+                        </button>
+                    </form>
+
+                    {/* Default Credentials Info */}
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm">
+                        <p className="font-semibold text-blue-900 mb-2">Default Credentials:</p>
+                        <p className="text-blue-700">Email: admin@solomon.school</p>
+                        <p className="text-blue-700">Password: Admin@123456</p>
+                        <p className="text-blue-600 text-xs mt-2">⚠️ Change password after first login</p>
+                    </div>
                 </div>
 
-                {error && (
-                    <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-                        {error}
-                    </div>
-                )}
-
-                <form onSubmit={handleSubmit} className="space-y-4">
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Email
-                        </label>
-                        <input
-                            type="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent"
-                            required
-                        />
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Password
-                        </label>
-                        <input
-                            type="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent"
-                            required
-                        />
-                    </div>
-
-                    <button
-                        type="submit"
-                        disabled={loading}
-                        className="w-full bg-accent hover:bg-accent-dark text-white font-semibold py-2 px-4 rounded-lg transition duration-200 disabled:opacity-50"
-                    >
-                        {loading ? 'Signing in...' : 'Sign In'}
-                    </button>
-                </form>
-
-                <p className="text-center text-sm text-gray-600 mt-6">
-                    Forgot password? Contact administrator
+                {/* Footer */}
+                <p className="text-center text-white/80 text-sm mt-6">
+                    © 2024 Solomon's Secondary School. All rights reserved.
                 </p>
             </div>
         </div>
