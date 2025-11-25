@@ -9,6 +9,11 @@ import Students from './pages/Students';
 import Teachers from './pages/Teachers';
 import Attendance from './pages/Attendance';
 import Announcements from './pages/Announcements';
+import Timetable from './pages/Timetable';
+import Fees from './pages/Fees';
+import Assignments from './pages/Assignments';
+import Reports from './pages/Reports';
+import Settings from './pages/Settings';
 import './index.css';
 
 const queryClient = new QueryClient();
@@ -71,6 +76,46 @@ function App() {
               element={
                 <ProtectedRoute>
                   <Announcements />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/timetable"
+              element={
+                <ProtectedRoute>
+                  <Timetable />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/fees"
+              element={
+                <ProtectedRoute>
+                  <Fees />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/assignments"
+              element={
+                <ProtectedRoute>
+                  <Assignments />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/reports"
+              element={
+                <ProtectedRoute>
+                  <Reports />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/settings"
+              element={
+                <ProtectedRoute>
+                  <Settings />
                 </ProtectedRoute>
               }
             />
