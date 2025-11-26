@@ -18,10 +18,12 @@ const Sidebar = () => {
         { icon: '📅', label: 'Timetable', path: '/timetable', roles: ['admin', 'superadmin'] },
         { icon: '✅', label: 'Attendance', path: '/attendance', roles: ['admin', 'superadmin', 'teacher'] },
         { icon: '📝', label: 'Assignments', path: '/assignments', roles: ['admin', 'superadmin', 'teacher'] },
+        { icon: '🎓', label: 'Grades', path: '/grades', roles: ['admin', 'superadmin', 'teacher'] },
         { icon: '📢', label: 'Announcements', path: '/announcements', roles: ['admin', 'superadmin', 'teacher'] },
         { icon: '💰', label: 'Fees', path: '/fees', roles: ['admin', 'superadmin', 'accountant'] },
         { icon: '📊', label: 'Reports', path: '/reports', roles: ['admin', 'superadmin', 'accountant'] },
         { icon: '👥', label: 'Users', path: '/users', roles: ['superadmin'] },
+        { icon: '⚙️', label: 'Settings', path: '/settings', roles: ['admin', 'superadmin'] },
     ];
 
     const filteredMenuItems = menuItems.filter(item =>

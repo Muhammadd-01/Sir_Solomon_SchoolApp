@@ -12,10 +12,14 @@ const firebaseConfig = {
     appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
 
+// DEBUG: log firebase config
+console.log('Firebase config loaded:', firebaseConfig);
+
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
-// Use long polling to avoid "client offline" issues in some environments
+// Enable long polling and IndexedDB persistence for offline support
 export const db = initializeFirestore(app, {
     experimentalForceLongPolling: true,
+    localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() })
 });
 export const storage = getStorage(app);
